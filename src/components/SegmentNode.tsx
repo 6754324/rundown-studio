@@ -6,13 +6,14 @@ import { formatClock } from '../engine/timeline'
 
 function SegmentNodeInner({ data, selected }: NodeProps) {
   const segment = data.segment as Segment
+  const active = Boolean(data.active)
   const meta = SEGMENT_TYPE_MAP[segment.type]
 
   return (
     <div
-      className={`w-44 rounded-lg border bg-ink-900 px-3 py-2.5 shadow-lg ${meta.classes} ${
-        selected ? 'ring-2 ring-brand-400/60' : ''
-      }`}
+      className={`w-44 rounded-lg border bg-ink-900 px-3 py-2.5 shadow-lg transition ${meta.classes} ${
+        active ? 'ring-2 ring-accent-400/80' : ''
+      } ${selected && !active ? 'ring-2 ring-brand-400/60' : ''}`}
     >
       <Handle type="target" position={Position.Left} />
       <div className="flex items-center gap-2">

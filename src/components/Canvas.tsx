@@ -13,6 +13,7 @@ import {
 import '@xyflow/react/dist/style.css'
 import { SegmentNode } from './SegmentNode'
 import { useRundownStore } from '../store/rundownStore'
+import { useRundownComputed } from '../hooks/useRundown'
 import { SEGMENT_TYPE_MAP } from '../data/segmentTypes'
 import type { Segment } from '../types'
 
@@ -28,11 +29,13 @@ export function Canvas() {
   const connect = useRundownStore((s) => s.connect)
   const disconnect = useRundownStore((s) => s.disconnect)
 
+  const { activeSegmentId } = useRundownComputed()
+
   const nodes: Node[] = segments.map((seg) => ({
     id: seg.id,
     type: 'segment',
     position: seg.position,
-    data: { segment: seg },
+    data: { segment: seg, active: seg.id === activeSegmentId },
     selected: seg.id === selectedId,
   }))
 

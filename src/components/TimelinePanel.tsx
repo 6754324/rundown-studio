@@ -1,37 +1,29 @@
-import { useMemo } from 'react'
+import { useEffect } from 'react'
 import { useRundownStore } from '../store/rundownStore'
-import { topologicalOrder } from '../engine/graph'
-import {
-  computeTimeline,
-  checkOvertime,
-  detectAnchorConflicts,
-  formatClock,
-  formatWallClock,
-} from '../engine/timeline'
+import { useRundownComputed } from '../hooks/useRundown'
+import { formatClock, formatWallClock } from '../engine/timeline'
 import { SEGMENT_TYPE_MAP } from '../data/segmentTypes'
-import type { Segment } from '../types'
 
 export function TimelinePanel() {
-  const segments = useRundownStore((s) => s.segments)
-  const edges = useRundownStore((s) => s.edges)
-  const targetDuration = useRundownStore((s) => s.targetDuration)
   const showStartAt = useRundownStore((s) => s.showStartAt)
   const setShowStartAt = useRundownStore((s) => s.setShowStartAt)
+  const targetDuration = useRundownStore((s) => s.targetDuration)
+  const playhead = useRundownStore((s) => s.playhead)
+  const isPlaying = useRundownStore((s) => s.isPlaying)
+  const startPlayback = useRundownStore((s) => s.startPlayback)
+  const pausePlayback = useRundownStore((s) => s.pausePlayback)
+  const stopPlayback = useRundownStore((s) => s.stopPlayback)
+  const tickPlayhead = useRundownStore((s) => s.tickPlayhead)
 
-  const { ordered, entries, totalDuration, overtime, conflicts } = useMemo(() => {
-    const order = topologicalOrder(
-      segments.map((s) => ({ id: s.id })),
-      edges.map((e) => ({ source: e.source, target: e.target })),
-    )
-    const byId = new Map(segments.map((s) => [s.id, s]))
-    const ordered = order
-      .map((id) => byId.get(id))
-      .filter((s): s is Segment => Boolean(s))
-    const { entries, totalDuration } = computeTimeline(ordered)
-    const overtime = checkOvertime(totalDuration, targetDuration)
-    const conflicts = detectAnchorConflicts(ordered, entries, showStartAt)
-    return { ordered, entries, totalDuration, overtime, conflicts }
-  }, [segments, edges, targetDuration, showStartAt])
+  const { ordered, entries, totalDuration, overtime, conflicts, activeSegmentId } =
+    useRundownComputed()
+
+  // Simulated run-through: 60x speed — 1 real second advances the show 60s.
+  useEffect(() => {
+    if (!isPlaying) return
+    const id = setInterval(() => tickPlayhead(6, totalDuration), 100)
+    return () => clearInterval(id)
+  }, [isPlaying, totalDuration, tickPlayhead])
 
   const exportCsv = () => {
     const header = ['序号', '环节', '类型', '时长', '累计开始', '累计结束', '锚定时间', '备注']
@@ -82,6 +74,24 @@ export function TimelinePanel() {
         </div>
       </div>
 
+      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+        <button
+          onClick={isPlaying ? pausePlayback : startPlayback}
+          disabled={totalDuration === 0}
+          className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {isPlaying ? '⏸ 暂停' : '▶ 模拟走带'}
+        </button>
+        <button
+          onClick={stopPlayback}
+          disabled={playhead === 0}
+          className="rounded-md border border-white/10 px-3 py-1.5 text-sm text-zinc-400 transition hover:text-white disabled:opacity-40"
+        >
+          重置
+        </button>
+        <span className="ml-auto font-mono text-sm text-accent-300">{formatClock(playhead)}</span>
+      </div>
+
       <div className="min-h-0 flex-1 overflow-auto">
         <table className="w-full text-left text-sm">
           <thead className="sticky top-0 bg-ink-900 text-xs text-zinc-500">
@@ -95,17 +105,27 @@ export function TimelinePanel() {
           <tbody>
             {entries.map((entry, i) => {
               const seg = ordered[i]
+              const active = seg.id === activeSegmentId
               return (
-                <tr key={entry.segmentId} className="border-t border-white/5">
+                <tr
+                  key={entry.segmentId}
+                  className={`border-t border-white/5 transition ${active ? 'bg-accent-500/10' : ''}`}
+                >
                   <td className="px-3 py-2 font-mono text-zinc-500">{i + 1}</td>
                   <td className="px-2 py-2">
                     <div className="flex items-center gap-2">
                       <span className={`h-2 w-2 shrink-0 rounded-full ${SEGMENT_TYPE_MAP[seg.type].chip}`} />
-                      <span className="truncate text-zinc-200">{seg.title}</span>
+                      <span className={`truncate ${active ? 'text-white' : 'text-zinc-200'}`}>
+                        {seg.title}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-2 py-2 text-right font-mono text-zinc-400">{formatClock(seg.duration)}</td>
-                  <td className="px-3 py-2 text-right font-mono text-zinc-400">{formatClock(entry.start)}</td>
+                  <td className="px-2 py-2 text-right font-mono text-zinc-400">
+                    {formatClock(seg.duration)}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono text-zinc-400">
+                    {formatClock(entry.start)}
+                  </td>
                 </tr>
               )
             })}

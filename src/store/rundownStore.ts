@@ -18,6 +18,9 @@ interface RundownState {
   /** Wall-clock start time of the show, e.g. "20:00". */
   showStartAt: string
   selectedId: string | null
+  /** Playback head position in seconds (for the simulated run-through). */
+  playhead: number
+  isPlaying: boolean
 
   addSegment: (type: SegmentType, position: { x: number; y: number }) => void
   updateSegment: (id: string, patch: Partial<Segment>) => void
@@ -30,6 +33,11 @@ interface RundownState {
   clearAll: () => void
   setTargetDuration: (seconds: number) => void
   setShowStartAt: (clock: string) => void
+  setPlayhead: (seconds: number) => void
+  startPlayback: () => void
+  pausePlayback: () => void
+  stopPlayback: () => void
+  tickPlayhead: (deltaSeconds: number, totalDuration: number) => void
 }
 
 export const useRundownStore = create<RundownState>()(
@@ -40,6 +48,8 @@ export const useRundownStore = create<RundownState>()(
       targetDuration: 3600,
       showStartAt: '20:00',
       selectedId: null,
+      playhead: 0,
+      isPlaying: false,
 
       addSegment: (type, position) => {
         const meta = SEGMENT_TYPE_MAP[type]
@@ -98,13 +108,30 @@ export const useRundownStore = create<RundownState>()(
           targetDuration: template.targetDuration,
           showStartAt: template.showStartAt,
           selectedId: null,
+          playhead: 0,
+          isPlaying: false,
         })
       },
 
-      clearAll: () => set({ segments: [], edges: [], selectedId: null }),
+      clearAll: () =>
+        set({ segments: [], edges: [], selectedId: null, playhead: 0, isPlaying: false }),
 
       setTargetDuration: (seconds) => set({ targetDuration: seconds }),
       setShowStartAt: (clock) => set({ showStartAt: clock }),
+
+      setPlayhead: (seconds) => set({ playhead: seconds }),
+      startPlayback: () => set({ isPlaying: true }),
+      pausePlayback: () => set({ isPlaying: false }),
+      stopPlayback: () => set({ isPlaying: false, playhead: 0 }),
+
+      tickPlayhead: (deltaSeconds, totalDuration) =>
+        set((s) => {
+          const next = s.playhead + deltaSeconds
+          if (next >= totalDuration) {
+            return { playhead: totalDuration, isPlaying: false }
+          }
+          return { playhead: next }
+        }),
     }),
     {
       name: 'rundown-studio',
