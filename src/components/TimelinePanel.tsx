@@ -54,18 +54,18 @@ export function TimelinePanel() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="space-y-2 border-b border-white/10 p-4">
+      <div className="space-y-2 border-b border-ink-200 p-4">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-zinc-500">总时长</span>
-          <span className="font-mono text-lg text-white">{formatClock(totalDuration)}</span>
+          <span className="text-ink-400">总时长</span>
+          <span className="font-mono text-lg text-ink-900">{formatClock(totalDuration)}</span>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-zinc-500">目标时长</span>
-          <span className="font-mono text-zinc-300">{formatClock(targetDuration)}</span>
+          <span className="text-ink-400">目标时长</span>
+          <span className="font-mono text-ink-600">{formatClock(targetDuration)}</span>
         </div>
         <div
           className={`rounded-md px-3 py-2 text-sm ${
-            overtime.overtime ? 'bg-rose-500/10 text-rose-300' : 'bg-emerald-500/10 text-emerald-300'
+            overtime.overtime ? 'bg-rose-500/10 text-rose-700' : 'bg-emerald-500/10 text-emerald-700'
           }`}
         >
           {overtime.overtime
@@ -74,27 +74,27 @@ export function TimelinePanel() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
+      <div className="flex items-center gap-2 border-b border-ink-200 px-4 py-3">
         <button
           onClick={isPlaying ? pausePlayback : startPlayback}
           disabled={totalDuration === 0}
-          className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-medium text-paper-50 transition hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isPlaying ? '⏸ 暂停' : '▶ 模拟走带'}
         </button>
         <button
           onClick={stopPlayback}
           disabled={playhead === 0}
-          className="rounded-md border border-white/10 px-3 py-1.5 text-sm text-zinc-400 transition hover:text-white disabled:opacity-40"
+          className="rounded-md border border-ink-200 px-3 py-1.5 text-sm text-ink-500 transition hover:text-ink-900 disabled:opacity-40"
         >
           重置
         </button>
-        <span className="ml-auto font-mono text-sm text-accent-300">{formatClock(playhead)}</span>
+        <span className="ml-auto font-mono text-sm text-accent-600">{formatClock(playhead)}</span>
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">
         <table className="w-full text-left text-sm">
-          <thead className="sticky top-0 bg-ink-900 text-xs text-zinc-500">
+          <thead className="sticky top-0 bg-paper-100 text-xs text-ink-400">
             <tr>
               <th className="px-3 py-2 font-medium">#</th>
               <th className="px-2 py-2 font-medium">环节</th>
@@ -109,21 +109,21 @@ export function TimelinePanel() {
               return (
                 <tr
                   key={entry.segmentId}
-                  className={`border-t border-white/5 transition ${active ? 'bg-accent-500/10' : ''}`}
+                  className={`border-t border-ink-200/70 transition ${active ? 'bg-accent-500/10' : ''}`}
                 >
-                  <td className="px-3 py-2 font-mono text-zinc-500">{i + 1}</td>
+                  <td className="px-3 py-2 font-mono text-ink-400">{i + 1}</td>
                   <td className="px-2 py-2">
                     <div className="flex items-center gap-2">
                       <span className={`h-2 w-2 shrink-0 rounded-full ${SEGMENT_TYPE_MAP[seg.type].chip}`} />
-                      <span className={`truncate ${active ? 'text-white' : 'text-zinc-200'}`}>
+                      <span className={`truncate ${active ? 'text-ink-900' : 'text-ink-700'}`}>
                         {seg.title}
                       </span>
                     </div>
                   </td>
-                  <td className="px-2 py-2 text-right font-mono text-zinc-400">
+                  <td className="px-2 py-2 text-right font-mono text-ink-500">
                     {formatClock(seg.duration)}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-zinc-400">
+                  <td className="px-3 py-2 text-right font-mono text-ink-500">
                     {formatClock(entry.start)}
                   </td>
                 </tr>
@@ -131,7 +131,7 @@ export function TimelinePanel() {
             })}
             {entries.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-3 py-8 text-center text-zinc-600">
+                <td colSpan={4} className="px-3 py-8 text-center text-ink-400">
                   还没有环节 — 从模板开始，或「添加环节」
                 </td>
               </tr>
@@ -140,11 +140,11 @@ export function TimelinePanel() {
         </table>
       </div>
 
-      <div className="space-y-3 border-t border-white/10 p-4">
+      <div className="space-y-3 border-t border-ink-200 p-4">
         <label className="block">
-          <span className="mb-1 block text-xs text-zinc-500">节目开始时间</span>
+          <span className="mb-1 block text-xs text-ink-400">节目开始时间</span>
           <input
-            className="w-full rounded-md border border-white/10 bg-ink-800 px-2.5 py-1.5 text-sm text-zinc-100 outline-none focus:border-brand-500/60"
+            className="w-full rounded-md border border-ink-200 bg-paper-200 px-2.5 py-1.5 text-sm text-ink-900 outline-none focus:border-brand-500/60"
             value={showStartAt}
             onChange={(e) => setShowStartAt(e.target.value)}
             placeholder="如 20:00"
@@ -156,7 +156,7 @@ export function TimelinePanel() {
             {conflicts.map((c) => (
               <div
                 key={c.segmentId}
-                className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-300"
+                className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700"
               >
                 ⚠️ 「{c.title}」锚定不符：期望 {formatWallClock(c.expectedStart)}，实际{' '}
                 {formatWallClock(c.actualStart)}
@@ -167,7 +167,7 @@ export function TimelinePanel() {
 
         <button
           onClick={exportCsv}
-          className="w-full rounded-md bg-brand-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-brand-500"
+          className="w-full rounded-md bg-brand-600 px-3 py-2 text-sm font-medium text-paper-50 transition hover:bg-brand-500"
         >
           导出播出单 (CSV)
         </button>

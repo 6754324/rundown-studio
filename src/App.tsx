@@ -5,13 +5,13 @@ import { TimelinePanel } from './components/TimelinePanel'
 
 export default function App() {
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-ink-950 font-sans text-zinc-300">
+    <div className="flex h-screen flex-col overflow-hidden bg-paper-50 font-sans text-ink-600">
       <Toolbar />
       <div className="flex flex-1 overflow-hidden">
         <main className="relative flex-1">
           <Canvas />
         </main>
-        <aside className="flex w-96 shrink-0 flex-col overflow-hidden border-l border-white/10">
+        <aside className="flex w-96 shrink-0 flex-col overflow-hidden border-l border-ink-200">
           <Inspector />
           <TimelinePanel />
         </aside>

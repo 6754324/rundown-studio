@@ -91,12 +91,12 @@ export function Canvas() {
       minZoom={0.2}
       defaultEdgeOptions={{ type: 'smoothstep' }}
     >
-      <Background gap={22} color="#181822" />
-      <Controls className="!bg-ink-900" />
+      <Background gap={22} color="#b0a58f" />
+      <Controls className="!bg-paper-100" />
       <MiniMap
         pannable
         zoomable
-        className="!bg-ink-900"
+        className="!bg-paper-100"
         nodeColor={(n) => SEGMENT_TYPE_MAP[(n.data.segment as Segment).type].hex}
       />
     </ReactFlow>
